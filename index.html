@@ -4,107 +4,568 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple CRUD App</title>
+    <title>Notes App</title>
 
     <style>
-        body {
-            background: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: auto;
+         :root {
+            --bg: #0f172a;
+            --bg-soft: #111827;
+            --panel: #111827;
+            --accent: #6366f1;
+            --accent-soft: #4f46e5;
+            --border: #1f2937;
+            --text: #f9fafb;
+            --muted: #9ca3af;
+            --danger: #ef4444;
         }
         
-        h1 {
-            text-align: center;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Top navigation */
+        
+        header {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(14px);
+            background: linear-gradient(to right, #020617cc, #020617aa);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .logo-text span:first-child {
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        
+        .logo-text span:last-child {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        
+        .header-right {
+            font-size: 13px;
+            color: var(--muted);
+        }
+        /* Layout */
+        
+        .app-shell {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: 0;
+            height: calc(100vh - 60px);
+        }
+        
+        aside {
+            background: linear-gradient(to bottom, #020617f0, #020617 60%, #020617ee);
+            border-right: 1px solid var(--border);
+            padding: 18px 18px 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        .aside-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .nav-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+        }
+        
+        .nav-footer {
+            margin-top: auto;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid rgba(15, 23, 42, 0.9);
+            padding-top: 12px;
+        }
+        /* Main area */
+        
+        main {
+            padding: 20px 22px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top left, #111827 0, #020617 50%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .main-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .main-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .main-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+        }
+        
+        .pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--muted);
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+        }
+        
+        .dot-live {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+        }
+        /* Composer panel */
+        
+        .composer {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 14px 14px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.7);
+        }
+        
+        .composer-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .field {
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .field label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            display: block;
         }
         
         input,
         textarea {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 4px;
-            border: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
         }
         
-        button {
-            padding: 10px 15px;
-            margin-top: 5px;
+        input:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.7);
+        }
+        
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        
+        .composer-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        
+        .btn {
+            border-radius: 999px;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
             cursor: pointer;
-            background: #4CAF50;
-            border: none;
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
-            border-radius: 4px;
+            font-weight: 500;
         }
         
-        .item {
-            background: #1e1e1e;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 6px;
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: var(--muted);
+        }
+        /* Notes grid */
+        
+        .notes-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 10px;
         }
         
-        .btn-delete {
-            background: #e53935;
-            margin-left: 5px;
+        .notes-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
         }
         
-        .btn-update {
-            background: #1976d2;
+        .note-card {
+            background: radial-gradient(circle at top left, #1f2937 0, #020617 50%);
+            border-radius: 14px;
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 12px 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .note-title {
+            font-size: 15px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .note-meta {
+            font-size: 11px;
+            color: var(--muted);
+        }
+        
+        .note-body {
+            font-size: 13px;
+            color: #e5e7eb;
+            line-height: 1.4;
+            max-height: 5.2em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .note-footer {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .icon-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(55, 65, 81, 0.8);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--muted);
+            padding: 4px 7px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .icon-btn.danger {
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #fecaca;
+        }
+        
+        @media (max-width: 800px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
+            aside {
+                display: none;
+            }
+            header {
+                position: static;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h1>My Data App</h1>
+    <header>
+        <div class="logo">
+            <div class="logo-mark">N</div>
+            <div class="logo-text">
+                <span>Notes</span>
+                <span>Database-driven web app</span>
+            </div>
+        </div>
+        <div class="header-right">
+            Project 2 · <span style="color: var(--accent)">Persistent Data</span>
+        </div>
+    </header>
 
-    <!-- CREATE FORM -->
-    <h3>Add Item</h3>
-    <input id="title" placeholder="Title" />
-    <textarea id="description" placeholder="Description"></textarea>
-    <button onclick="createItem()">Add</button>
+    <div class="app-shell">
+        <!-- Sidebar -->
+        <aside>
+            <div>
+                <div class="aside-title">Workspace</div>
+                <div class="nav-list" style="margin-top: 8px;">
+                    <div class="nav-item active">
+                        <span>All Notes</span>
+                        <span class="nav-dot"></span>
+                    </div>
+                    <div class="nav-item">
+                        <span>Favourites</span>
+                    </div>
+                    <div class="nav-item">
+                        <span>Archive</span>
+                    </div>
+                </div>
+            </div>
 
-    <hr>
+            <div>
+                <div class="aside-title" style="margin-top: 8px;">Info</div>
+                <div style="margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.4;">
+                    This app stores your notes in a MongoDB Atlas database using an Express API and Mongoose.
+                </div>
+            </div>
 
-    <h3>Your Items</h3>
-    <div id="items"></div>
+            <div class="nav-footer">
+                DESN31927 · System Design<br> Project 2 · Persistent Data
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main>
+            <div class="main-header">
+                <div class="main-title-block">
+                    <div class="main-title">Notes</div>
+                    <div class="main-subtitle">
+                        Create, edit, and delete notes. Data is stored persistently in MongoDB Atlas.
+                    </div>
+                </div>
+                <div class="pill">
+                    <span class="dot-live"></span> Connected to API
+                </div>
+            </div>
+
+            <!-- Composer / form -->
+            <section class="composer">
+                <div class="composer-label">New Note</div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input id="title" placeholder="Meeting notes, ideas, tasks..." />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="description">Details</label>
+                    <textarea id="description" placeholder="Write your note here..."></textarea>
+                </div>
+
+                <div class="composer-footer">
+                    <button class="btn btn-secondary" type="button" onclick="clearForm()">Clear</button>
+                    <button class="btn btn-primary" type="button" onclick="createItem()">
+            + Add Note
+          </button>
+                </div>
+            </section>
+
+            <!-- Notes list -->
+            <div class="notes-header-row">
+                <span>Saved Notes</span>
+                <span id="note-count">0 notes</span>
+            </div>
+
+            <section class="notes-grid" id="items">
+                <!-- Notes will be injected here -->
+            </section>
+        </main>
+    </div>
 
     <script>
         const API_URL = "http://localhost:5000/api/items";
 
-        // Fetch & display items
-        async function loadItems() {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-
-            const container = document.getElementById("items");
-            container.innerHTML = "";
-
-            data.forEach(item => {
-                const div = document.createElement("div");
-                div.className = "item";
-
-                div.innerHTML = `
-          <strong>${item.title}</strong><br>
-          <p>${item.description || ""}</p>
-
-          <input id="edit-title-${item._id}" placeholder="New title" />
-          <input id="edit-desc-${item._id}" placeholder="New description" />
-
-          <button class="btn-update" onclick="updateItem('${item._id}')">Update</button>
-          <button class="btn-delete" onclick="deleteItem('${item._id}')">Delete</button>
-        `;
-
-                container.appendChild(div);
+        function formatDate(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr);
+            return d.toLocaleDateString() + " · " + d.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
             });
         }
 
-        // CREATE
+        function clearForm() {
+            document.getElementById("title").value = "";
+            document.getElementById("description").value = "";
+        }
+
+        async function loadItems() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                const container = document.getElementById("items");
+                const count = document.getElementById("note-count");
+                container.innerHTML = "";
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = `<div style="font-size:13px;color:#9ca3af;margin-top:6px;">No notes yet. Create your first one above.</div>`;
+                    count.textContent = "0 notes";
+                    return;
+                }
+
+                count.textContent = `${data.length} note${data.length === 1 ? "" : "s"}`;
+
+                data.slice().reverse().forEach(item => {
+                    const div = document.createElement("article");
+                    div.className = "note-card";
+
+                    const created = formatDate(item.createdAt);
+
+                    div.innerHTML = `
+            <div class="note-header">
+              <div>
+                <div class="note-title" title="${item.title || ""}">${item.title || "Untitled note"}</div>
+                <div class="note-meta">${created}</div>
+              </div>
+            </div>
+
+            <div class="note-body">${(item.description || "").replace(/\n/g, "<br>")}</div>
+
+            <div class="note-footer">
+              <span>${item._id}</span>
+              <div class="note-actions">
+                <button class="icon-btn" onclick="prefillForm('${item._id}')">Edit</button>
+                <button class="icon-btn danger" onclick="deleteItem('${item._id}')">Delete</button>
+              </div>
+            </div>
+
+            <input type="hidden" id="title-${item._id}" value="${(item.title || "").replace(/"/g, "&quot;")}">
+            <input type="hidden" id="desc-${item._id}" value="${(item.description || "").replace(/"/g, "&quot;")}">
+          `;
+
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading items", err);
+            }
+        }
+
         async function createItem() {
-            const title = document.getElementById("title").value;
-            const description = document.getElementById("description").value;
+            const title = document.getElementById("title").value.trim();
+            const description = document.getElementById("description").value.trim();
+
+            if (!title && !description) return;
 
             await fetch(API_URL, {
                 method: "POST",
@@ -117,31 +578,40 @@
                 })
             });
 
-            document.getElementById("title").value = "";
-            document.getElementById("description").value = "";
+            clearForm();
             loadItems();
         }
 
-        // UPDATE
-        async function updateItem(id) {
-            const title = document.getElementById(`edit-title-${id}`).value;
-            const description = document.getElementById(`edit-desc-${id}`).value;
+        function prefillForm(id) {
+            const titleField = document.getElementById(`title-${id}`);
+            const descField = document.getElementById(`desc-${id}`);
 
-            await fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    title,
-                    description
-                })
-            });
+            document.getElementById("title").value = titleField ? titleField.value : "";
+            document.getElementById("description").value = descField ? descField.value : "";
 
-            loadItems();
+            // When you press "Add Note" after editing, we’ll treat it as an update:
+            const originalCreate = createItem;
+            createItem = async function() {
+                const newTitle = document.getElementById("title").value.trim();
+                const newDesc = document.getElementById("description").value.trim();
+
+                await fetch(`${API_URL}/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title: newTitle,
+                        description: newDesc
+                    })
+                });
+
+                clearForm();
+                createItem = originalCreate; // restore
+                loadItems();
+            };
         }
 
-        // DELETE
         async function deleteItem(id) {
             await fetch(`${API_URL}/${id}`, {
                 method: "DELETE"
@@ -149,7 +619,6 @@
             loadItems();
         }
 
-        // Load on start
         loadItems();
     </script>
 </body>
